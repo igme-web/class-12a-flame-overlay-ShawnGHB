@@ -1,18 +1,26 @@
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
-import 'overlay_title.dart';
-import 'overlay_pause.dart';
-import 'overlay_main.dart';
-import 'overlay_settings.dart';
-import 'overlay_info.dart';
+import 'package:provider/provider.dart';
+
 import 'game.dart';
+import 'game_provider.dart';
+import 'overlay_info.dart';
+import 'overlay_main.dart';
+import 'overlay_pause.dart';
+import 'overlay_settings.dart';
+import 'overlay_title.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Flame.device.fullScreen(); //makes game fullscreen
 
-  runApp(const MainApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => GameProvider(),
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -23,8 +31,8 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: GameWidget(
-          game: OverlayTutorial(context)..paused = true,
+        body: GameWidget.controlled(
+          gameFactory: () => OverlayTutorial(context)..paused = true,
           overlayBuilderMap: {
             'title': (context, game) {
               return OverlayTitle(game: game);
