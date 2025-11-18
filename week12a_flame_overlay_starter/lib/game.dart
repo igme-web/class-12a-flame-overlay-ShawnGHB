@@ -20,8 +20,8 @@ import 'game_provider.dart';
 /// - the game spawns 10 asteroids that are unmanaged.
 /// - the game uses TapCallbacks to handle tap events. Nothing happens yet.
 ///
-
-class OverlayTutorial extends FlameGame with TapCallbacks {
+class OverlayTutorial extends FlameGame
+    with TapCallbacks, WidgetsBindingObserver {
   final BuildContext context;
 
   late final GameProvider gameProvider; // Add this
@@ -48,6 +48,40 @@ class OverlayTutorial extends FlameGame with TapCallbacks {
   }
 
   @override
+  void onAttach() {
+    super.onAttach();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // TODO: Print "Resumed"
+        print("Resumed");
+        // TODO: Resume the game engine
+        gameProvider.musicPlayer.resume();
+        // TODO: Resume the music player
+        resumeEngine();
+        break;
+
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.hidden:
+        // TODO: Print "Paused"
+        print("Paused");
+        // TODO: Pause the game engine
+        gameProvider.musicPlayer.pause();
+        // TODO: Pause the music player
+        pauseEngine();
+        break;
+    }
+  }
+
+  @override
   void onTapUp(TapUpEvent event) {
     super.onTapUp(event);
 
@@ -60,6 +94,8 @@ class OverlayTutorial extends FlameGame with TapCallbacks {
 
   @override
   void onDispose() {
+    print("Game disposed");
+    WidgetsBinding.instance.removeObserver(this);
     gameProvider.dispose();
     super.onDispose();
   }
